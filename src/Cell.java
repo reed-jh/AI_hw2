@@ -16,6 +16,7 @@ public class Cell implements Comparable<Cell>
 	boolean isStart = false;// used in toString() method to make sure start is correctly output
 	boolean isPath = false; // set at the end, when final path is built
 	boolean isVisited = false; // Whether or not cell has been added to fringe
+	boolean isInFringe = false;
 	
 	// Methods
 	public String toString()
