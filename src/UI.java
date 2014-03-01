@@ -1,11 +1,11 @@
-import java.io.File;
-import java.util.Scanner;
-
 /*
  * 
  * This is the User Interface for the program. This file also contains the main method
  * 
  */
+import java.util.Scanner;
+
+
 public class UI 
 {
 	// Fields
@@ -28,9 +28,13 @@ public class UI
 				// Load file contents into grid
 				g = new Grid();
 				if(!g.loadGrid(args[0]))
+				{
 					// If error exists in file
 					throw new Exception("Error in file.");
-
+				}
+				
+				
+				
 				// Primary loop
 				while (true)
 				{
@@ -42,19 +46,23 @@ public class UI
 					}
 
 					// Execute search
-					Search.perform(strategy);
-
+					Search.perform(strategy, g);
+					
 					// Print results
 					g.printGrid();
 
 					// Ask user if they want to continue
 					if(!promptContinue())
 						break;
+					
+					// Clear for new search
+					g.clearPath();
 				}
 			}
 			catch(Exception e)
 			{
-				System.out.println(e);
+				System.out.println("Main loop");
+				e.printStackTrace();
 			}
 		}
 	}
@@ -70,10 +78,10 @@ public class UI
 			{
 				g.printGrid();
 				System.out.println('\n' + "Please choose a search option 1-4 and press ENTER:");
-				System.out.println("1. f(n) = Manhattan Distance");
-				System.out.println("2. f(n) = Euclidean Distance");
-				System.out.println("3. f(n) = g(n) + h(n) where h(n) = Manhattan Distance");
-				System.out.println("4. f(n) = g(n) + h(n) where h(n) = Euclidean Distance");
+				System.out.println("1. f(n) = Euclidean Distance");
+				System.out.println("2. f(n) = Manhattan Distance");
+				System.out.println("3. f(n) = g(n) + h(n) where h(n) = Euclidean Distance");
+				System.out.println("4. f(n) = g(n) + h(n) where h(n) = Manhattan Distance");
 				System.out.println("5. Exit");
 
 				// Read in input
