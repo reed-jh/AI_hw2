@@ -20,8 +20,12 @@ public class Search
 
 		while (goalNotFound)
 		{
-			System.out.println(g.fringe.toString());
-			
+			// Debugging
+			//System.out.println(g.fringe.toString());
+			System.out.println("(" + g.current.point[0] + ", " + g.current.point[1] + ")");
+			System.out.println("SIZE OF FRINGE: " + g.fringe.size());
+			System.out.println("Curr Eval: " + g.current.evaluation);
+
 			// Pull from fringe to make current cell
 			Cell temp = g.fringe.remove();
 			// Mark as visited
@@ -29,9 +33,16 @@ public class Search
 			g.current = temp;
 
 			// Add adjacent cells to fringe from 'current' cell
-			goalNotFound = buildFringe(g); // if goal is found in fringe, we're done			
+			goalNotFound = buildFringe(g); // if goal is found in fringe, we're done
+
+			// Search failed
+			if (g.fringe.isEmpty())
+			{
+				System.out.println("The search failed to find the goal.");
+				break;
+			}
 		}
-		
+
 		// Fill in grid with path data for final printout
 		g.buildPath();
 
@@ -45,87 +56,56 @@ public class Search
 		boolean goalNotFound = true;
 
 		// Check cell above
-		Cell tempCell = g.grid[currPoint[0] - 1][currPoint[1]];
-		if (tempCell.isGoal)
-			goalNotFound = false;
-		if (tempCell.isClear && !tempCell.isVisited)
-		{
-			// Perform evaluation
-			g.grid[currPoint[0] - 1][currPoint[1]].pathCost = curr.pathCost + 1;
-			g.grid[currPoint[0] - 1][currPoint[1]].evaluation = evaluateCell(g.grid[currPoint[0] - 1][currPoint[1]], g.grid[g.goal[0]][g.goal[1]]);
-			// Add cell
-			g.grid[currPoint[0] - 1][currPoint[1]].previousCell = currPoint;
-			g.fringe.add(g.grid[currPoint[0] - 1][currPoint[1]]);
-		}
-		
-		
+		goalNotFound = checkCell(g, currPoint, -1, 0);
 		// Check cell below
-		tempCell = g.grid[currPoint[0] + 1][currPoint[1]];
-		if (tempCell.isGoal)
-			goalNotFound = false;
-		if (tempCell.isClear && !tempCell.isVisited)
-		{
-			// Perform evaluation
-			g.grid[currPoint[0] + 1][currPoint[1]].pathCost = curr.pathCost + 1;
-			g.grid[currPoint[0] + 1][currPoint[1]].evaluation = evaluateCell(g.grid[currPoint[0] + 1][currPoint[1]], g.grid[g.goal[0]][g.goal[1]]);
-			// Add cell
-			g.grid[currPoint[0] + 1][currPoint[1]].previousCell = currPoint;
-			g.fringe.add(g.grid[currPoint[0] + 1][currPoint[1]]);
-		}
-		
-		
+		goalNotFound = checkCell(g, currPoint, 1, 0);
 		// Check cell to left
-		tempCell = g.grid[currPoint[0]][currPoint[1] - 1];
-		if (tempCell.isGoal)
-			goalNotFound = false;
-		if (tempCell.isClear && !tempCell.isVisited)
-		{
-			// Perform evaluation
-			g.grid[currPoint[0]][currPoint[1] - 1].pathCost = curr.pathCost + 1;
-			g.grid[currPoint[0]][currPoint[1] - 1].evaluation = evaluateCell(g.grid[currPoint[0]][currPoint[1] - 1], g.grid[g.goal[0]][g.goal[1]]);
-			// Add cell
-			g.grid[currPoint[0]][currPoint[1] - 1].previousCell = currPoint;
-			g.fringe.add(g.grid[currPoint[0]][currPoint[1] - 1]);
-		}
-		
-		
+		goalNotFound = checkCell(g, currPoint, 0, -1);
 		// Check cell to right
-		tempCell = g.grid[currPoint[0]][currPoint[1] + 1];
-		if (tempCell.isGoal)
-			goalNotFound = false;
-		if (tempCell.isClear && !tempCell.isVisited)
-		{
-			// Perform evaluation
-			g.grid[currPoint[0]][currPoint[1] + 1].pathCost = curr.pathCost + 1;
-			g.grid[currPoint[0]][currPoint[1] + 1].evaluation = evaluateCell(g.grid[currPoint[0]][currPoint[1] + 1], g.grid[g.goal[0]][g.goal[1]]);
-			// Add cell
-			g.grid[currPoint[0]][currPoint[1] + 1].previousCell = currPoint;
-			g.fringe.add(g.grid[currPoint[0]][currPoint[1] + 1]);
-		}
+		goalNotFound = checkCell(g, currPoint, 0, 1);
 
 		return goalNotFound;
 	}
 
 	// Check adjacent cells for clearness
 	// Returns true if the cell is not the goal, false if it is
-	private boolean checkCell(Grid g, int[] currPoint, int xOffset, int yOffset)
+	private static boolean checkCell(Grid g, int[] currPoint, int xOffset, int yOffset)
 	{
 		boolean ret = true;
-		
+
 		Cell temp = g.grid[currPoint[0] + xOffset][currPoint[1] + yOffset];
-		
+
 		if (temp.isGoal)
 			ret = false;
-		if (temp.isClear && !temp.isVisited)
+		else if (temp.isClear && !temp.isVisited)
 		{
 			// Perform evaluation
-			g.grid[currPoint[0] + xOffset][currPoint[1] + yOffset].pathCost = g.grid[currPoint[0]][currPoint[1]].pathCost + 1;
+			g.grid[currPoint[0] + xOffset][currPoint[1] + yOffset].pathCost = (g.grid[currPoint[0]][currPoint[1]].pathCost + 1);
+			double oldEval = g.grid[currPoint[0] + xOffset][currPoint[1] + yOffset].evaluation;
 			g.grid[currPoint[0] + xOffset][currPoint[1] + yOffset].evaluation = evaluateCell(g.grid[currPoint[0] + xOffset][currPoint[1] + yOffset], g.grid[g.goal[0]][g.goal[1]]);
 			// Add cell
-			g.grid[currPoint[0] + xOffset][currPoint[1] + yOffset].previousCell = currPoint;
-			g.fringe.add(g.grid[currPoint[0] + xOffset][currPoint[1] + yOffset]);
+			if (!g.grid[currPoint[0] + xOffset][currPoint[1] + yOffset].isInFringe){
+				g.grid[currPoint[0] + xOffset][currPoint[1] + yOffset].previousCell = currPoint;
+				g.fringe.add(g.grid[currPoint[0] + xOffset][currPoint[1] + yOffset]);
+				g.grid[currPoint[0] + xOffset][currPoint[1] + yOffset].isInFringe = true;
+				
+				// debugging
+				System.out.println("ADDED TO FRINGE: (" + (currPoint[0] + xOffset) + ", " + (currPoint[1] + yOffset) + ")");
+			}
+			else // is already in fringe
+			{
+				// See if this new evaluation is cheaper (the new path is shorter)
+				if (g.grid[currPoint[0] + xOffset][currPoint[1] + yOffset].evaluation < oldEval)
+				{
+					// remove old from fringe and add new
+					g.fringe.remove(currPoint);
+					g.grid[currPoint[0] + xOffset][currPoint[1] + yOffset].previousCell = currPoint;
+					g.fringe.add(g.grid[currPoint[0] + xOffset][currPoint[1] + yOffset]);
+					g.grid[currPoint[0] + xOffset][currPoint[1] + yOffset].isInFringe = true;
+				}
+			}
 		}
-		
+
 		return ret;
 	}
 

@@ -113,7 +113,8 @@ public class Grid
 			grid[currentPoint[0]][currentPoint[1]].isPath = true;
 			currentPoint = grid[currentPoint[0]][currentPoint[1]].previousCell;
 			
-			System.out.println(currentPoint[0] + " " + currentPoint[1] + "--> " + grid[currentPoint[0]][currentPoint[1]].pathCost +  " -> " + grid[currentPoint[0]][currentPoint[1]].evaluation);
+			// Debugging
+			//System.out.println(currentPoint[0] + " " + currentPoint[1] + "--> " + grid[currentPoint[0]][currentPoint[1]].pathCost +  " -> " + grid[currentPoint[0]][currentPoint[1]].evaluation);
 		}
 	}
 
@@ -146,11 +147,13 @@ public class Grid
 				int[] temp = {0,0};
 				grid[i][j].previousCell = temp;
 				grid[i][j].pathCost = 0;
-				fringe = new PriorityQueue<Cell>();
-				current = grid[start[0]][start[1]];
-				fringe.add(current);
+				grid[i][j].isInFringe = false;
+				
 			}
 		}
+		fringe = new PriorityQueue<Cell>();
+		current = grid[start[0]][start[1]];
+		fringe.add(current);
 	}
 
 }
