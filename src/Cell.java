@@ -34,7 +34,7 @@ public class Cell implements Comparable<Cell>
 		return ret;
 	}
 
-	// Determine 
+	// Determines position in priority queue
 	@Override
 	public int compareTo(Cell c) {
 		int val = 0;

@@ -14,13 +14,78 @@ public class Grid
 {
 	// Fields
 	Cell[][] grid; // Dynamically allocated
-	int size = 0;
+	int size = 0; // size of one side of grid 
 	int[] start = new int[2]; // store location of start cell
 	int[] goal = new int[2]; // store location of goal cell
 	Cell current; // Most recently expanded cell in search
 	PriorityQueue<Cell> fringe = new PriorityQueue<Cell>();
 
 	// Methods
+
+	// Builds path that has reached goal
+	// Used once search is complete. From final node, the path is constructed backwards using 'previousCells'
+	public void buildPath()
+	{
+		int[] currentPoint = current.point;
+		// Loop through cells from goal to start, marking all in path as such
+
+		// While we are at the final cell, set the path cost using
+		// Cell's path cost + 1
+		Search.totalPathCost = current.pathCost + 1;
+
+		while (!Arrays.equals(currentPoint, start))
+		{
+			// Set as inPath
+			grid[currentPoint[0]][currentPoint[1]].isPath = true;
+			// Go to the new previous cell
+			currentPoint = grid[currentPoint[0]][currentPoint[1]].previousCell;
+		}
+	}
+
+	// Prints out grid
+	void printGrid()
+	{
+		for (int i = 1; i < size + 1; ++i)
+		{
+			String line = "";
+			for (int j = 1; j < size + 1; ++j)
+			{
+				// Add each cell to line
+				line += grid[i][j].toString();
+			}
+			// Print line
+			System.out.print(line + '\n');
+		}
+
+		// Print additional info: path cost and size of search tree
+		if (Search.totalPathCost != 0 && Search.sizeSearchTree != 0){
+			System.out.println("Path Cost:\t\t" + Search.totalPathCost);
+			System.out.println("Search Tree Size:\t" + Search.sizeSearchTree + '\n');
+		}
+	}
+
+	// Delete the path created by search; for when user wants to search again
+	// Clears other info
+	void clearPath(){
+		for (int i = 1; i < size + 1; ++i)
+		{
+			String line = "";
+			for (int j = 1; j < size + 1; ++j)
+			{
+				grid[i][j].isPath = false;
+				grid[i][j].isVisited = false;
+				int[] temp = {0,0};
+				grid[i][j].previousCell = temp;
+				grid[i][j].pathCost = 0;
+				grid[i][j].isInFringe = false;
+
+			}
+		}
+		fringe = new PriorityQueue<Cell>();
+		current = grid[start[0]][start[1]];
+		fringe.add(current);
+	}
+
 
 	// Takes file as input and produces the grid
 	// Returns false if there was an error in the file
@@ -37,6 +102,7 @@ public class Grid
 			// Read fist line with size of grid
 			if ((line = buff.readLine()) != null)
 			{
+				// Get int out of it; will throw exception for bad value
 				size = Integer.parseInt(line);
 			}
 
@@ -50,6 +116,7 @@ public class Grid
 				// Check for empty line
 				if( (i != 0) && (i != size + 1) )
 				{
+					// Read line; check for errors
 					line = buff.readLine();
 					if ( (line == null) && !(line.length() == size))
 						throw new Exception("Error in file");
@@ -62,6 +129,7 @@ public class Grid
 					char cellValue = 0;
 					if ((j != 0) && (i != 0) && (j < size + 1) && (i < size + 1))
 					{
+						// get cell value in file
 						cellValue = line.charAt(j - 1);
 					}
 
@@ -72,7 +140,7 @@ public class Grid
 					grid[i][j].point[0] = i;
 					grid[i][j].point[1] = j;
 
-					// Set values for each cell
+					// Set values for each cell based on value in file
 					switch (cellValue)
 					{
 					case '.':
@@ -94,6 +162,9 @@ public class Grid
 				}
 
 			}
+
+			// Close buffered reader
+			buff.close();
 		}
 		catch(Exception e)
 		{	
@@ -101,59 +172,6 @@ public class Grid
 			loaded = false;
 		}
 		return loaded;
-	}
-
-	// Builds path that has reached goal
-	public void buildPath()
-	{
-		int[] currentPoint = current.point;
-		// Loop through cells from goal to start, marking all in path as such
-		while (!Arrays.equals(currentPoint, start))
-		{
-			grid[currentPoint[0]][currentPoint[1]].isPath = true;
-			currentPoint = grid[currentPoint[0]][currentPoint[1]].previousCell;
-			
-			// Debugging
-			//System.out.println(currentPoint[0] + " " + currentPoint[1] + "--> " + grid[currentPoint[0]][currentPoint[1]].pathCost +  " -> " + grid[currentPoint[0]][currentPoint[1]].evaluation);
-		}
-	}
-
-	// Prints out grid
-	void printGrid()
-	{
-		for (int i = 1; i < size + 1; ++i)
-		{
-			String line = "";
-			for (int j = 1; j < size + 1; ++j)
-			{
-				// Add each cell to line
-				line += grid[i][j].toString();
-			}
-			// Print line
-			System.out.print(line + '\n');
-		}
-	}
-	
-	// Delete the path created by search
-	// Clears other info
-	void clearPath(){
-		for (int i = 1; i < size + 1; ++i)
-		{
-			String line = "";
-			for (int j = 1; j < size + 1; ++j)
-			{
-				grid[i][j].isPath = false;
-				grid[i][j].isVisited = false;
-				int[] temp = {0,0};
-				grid[i][j].previousCell = temp;
-				grid[i][j].pathCost = 0;
-				grid[i][j].isInFringe = false;
-				
-			}
-		}
-		fringe = new PriorityQueue<Cell>();
-		current = grid[start[0]][start[1]];
-		fringe.add(current);
 	}
 
 }

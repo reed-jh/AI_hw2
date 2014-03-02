@@ -10,7 +10,9 @@ public class Search
 {
 	// Fields
 	static int searchStrategy = 0; // Determines which search algorithm us used
-
+	static int totalPathCost = 0; // used in final printout
+	static int sizeSearchTree = 0; // holds the number of nodes in seearch tree
+	
 	// Primary search method
 	public static void perform(int strategy, Grid g)
 	{
@@ -20,12 +22,6 @@ public class Search
 
 		while (goalNotFound)
 		{
-			// Debugging
-			//System.out.println(g.fringe.toString());
-			System.out.println("(" + g.current.point[0] + ", " + g.current.point[1] + ")");
-			System.out.println("SIZE OF FRINGE: " + g.fringe.size());
-			System.out.println("Curr Eval: " + g.current.evaluation);
-
 			// Pull from fringe to make current cell
 			Cell temp = g.fringe.remove();
 			// Mark as visited
@@ -87,15 +83,20 @@ public class Search
 			g.grid[currPoint[0] + xOffset][currPoint[1] + yOffset].pathCost = (g.grid[currPoint[0]][currPoint[1]].pathCost + 1);
 			double oldEval = g.grid[currPoint[0] + xOffset][currPoint[1] + yOffset].evaluation;
 			g.grid[currPoint[0] + xOffset][currPoint[1] + yOffset].evaluation = evaluateCell(g.grid[currPoint[0] + xOffset][currPoint[1] + yOffset], g.grid[g.goal[0]][g.goal[1]]);
+			
 			// Add cell
 			if (!g.grid[currPoint[0] + xOffset][currPoint[1] + yOffset].isInFringe){
+				// Set new cell's previous cell to the current
 				g.grid[currPoint[0] + xOffset][currPoint[1] + yOffset].previousCell = currPoint;
+				// Add cell to fringe
 				g.fringe.add(g.grid[currPoint[0] + xOffset][currPoint[1] + yOffset]);
+				// Mark as being in fringe
 				g.grid[currPoint[0] + xOffset][currPoint[1] + yOffset].isInFringe = true;
 				
-				// debugging
-				System.out.println("ADDED TO FRINGE: (" + (currPoint[0] + xOffset) + ", " + (currPoint[1] + yOffset) + ")");
+				// increment the size of the search tree
+				++sizeSearchTree;
 			}
+			
 			else // is already in fringe
 			{
 				// See if this new evaluation is cheaper (the new path is shorter)
@@ -103,9 +104,10 @@ public class Search
 				{
 					// remove old from fringe and add new
 					g.fringe.remove(currPoint);
+					// Set new cell's previous cell to the current
 					g.grid[currPoint[0] + xOffset][currPoint[1] + yOffset].previousCell = currPoint;
+					// Add to fringe
 					g.fringe.add(g.grid[currPoint[0] + xOffset][currPoint[1] + yOffset]);
-					g.grid[currPoint[0] + xOffset][currPoint[1] + yOffset].isInFringe = true;
 				}
 			}
 		}
@@ -119,6 +121,7 @@ public class Search
 		return Math.abs(a.point[0] - b.point[0]) + Math.abs(a.point[1] - b.point[1]);
 	}
 
+	// Calculates Euclidean Distance between two cells
 	private static double calculateEuclideanDistance(Cell a, Cell b)
 	{
 		return Math.sqrt( Math.pow( (a.point[0] - b.point[0]) , 2) + Math.pow( (a.point[1] - b.point[1]) , 2) );
@@ -132,23 +135,29 @@ public class Search
 		switch (searchStrategy)
 		{
 		case 1:
+			// f(n) = euclidean distance to goal from n
 			ret = strategy1(n, goal);
 			break;
 		case 2:
+			// f(n) = manhattan distance to goal from n
 			ret = strategy2(n, goal);
 			break;
 		case 3:
+			// f(n) = g(n) + h(n) --> Euclidean
 			ret = strategy3(n, goal);
 			break;
 		case 4:
+			// f(n) = g(n) + h(n) --> Manhattan
 			ret = strategy4(n, goal);
 		}
 
 		return ret;
 	}
 
+	
 	// Stategies for evaluation function
-
+	//
+	
 	// f(n) = euclidean distance to goal from n
 	private static double strategy1(Cell c, Cell goal)
 	{
