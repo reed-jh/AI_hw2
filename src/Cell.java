@@ -30,6 +30,7 @@ public class Cell implements Comparable<Cell>
 			ret = "g";
 		else if (isStart)
 			ret = "i";
+		
 		return ret;
 	}
 

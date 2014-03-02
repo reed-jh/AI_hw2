@@ -36,7 +36,7 @@ public class Search
 			goalNotFound = buildFringe(g); // if goal is found in fringe, we're done
 
 			// Search failed
-			if (g.fringe.isEmpty())
+			if (g.fringe.isEmpty() && goalNotFound)
 			{
 				System.out.println("The search failed to find the goal.");
 				break;
@@ -58,11 +58,11 @@ public class Search
 		// Check cell above
 		goalNotFound = checkCell(g, currPoint, -1, 0);
 		// Check cell below
-		goalNotFound = checkCell(g, currPoint, 1, 0);
+		goalNotFound &= checkCell(g, currPoint, 1, 0);
 		// Check cell to left
-		goalNotFound = checkCell(g, currPoint, 0, -1);
+		goalNotFound &= checkCell(g, currPoint, 0, -1);
 		// Check cell to right
-		goalNotFound = checkCell(g, currPoint, 0, 1);
+		goalNotFound &= checkCell(g, currPoint, 0, 1);
 
 		return goalNotFound;
 	}
@@ -74,9 +74,13 @@ public class Search
 		boolean ret = true;
 
 		Cell temp = g.grid[currPoint[0] + xOffset][currPoint[1] + yOffset];
-
+		
 		if (temp.isGoal)
+		{
+			//debugging
+			System.out.println("GOT HERE!");
 			ret = false;
+		}
 		else if (temp.isClear && !temp.isVisited)
 		{
 			// Perform evaluation
@@ -105,7 +109,7 @@ public class Search
 				}
 			}
 		}
-
+		
 		return ret;
 	}
 
